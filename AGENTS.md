@@ -21,7 +21,7 @@ Open `http://localhost:5173`. API is proxied to `:8080`.
 | Suite | Command | Notes |
 |-------|---------|--------|
 | All | `uv run pytest tests/ -v` | |
-| E2E scenarios (mocked LLM) | `uv run pytest tests/test_functional_e2e.py -v` or `pytest -m e2e` | **Scenario A:** full configuration completion. **Scenario B:** escalation / specialist handoff. See `docs/e2e-scenarios.md`. |
+| E2E scenarios (mocked LLM) | `uv run pytest tests/test_functional_e2e.py -v` or `pytest -m e2e` | **Scenario A/B** automated; **manual browser scripts** (what to type in chat) are in `docs/e2e-scenarios.md` → *Manual QA*. |
 | API + live LLM (optional) | Same, with `ANTHROPIC_API_KEY` set | `tests/test_api_e2e.py` chat cases run; skipped without key. |
 
 Functional E2E tests use **HTTP** against the app (`TestClient`); they do not drive the browser. They intentionally mock `ChatAnthropic` so CI stays deterministic.
