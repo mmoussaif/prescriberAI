@@ -34,6 +34,7 @@ Copy `.env.example` → `.env`. Minimum for real chat: `ANTHROPIC_API_KEY`. Opti
 
 | Path | Role |
 |------|------|
+| `docs/product-brief.md` | Product brief aligned with current code (send to stakeholders with the repo) |
 | `app/services/ai_service.py` | LangGraph agent, Langfuse prompt fetch, escalation strings, Langfuse LangChain callback for traces |
 | `app/routers/chat.py` | `POST /api/chat` |
 | `app/routers/npi.py` | `GET /api/npi/{npi}` |

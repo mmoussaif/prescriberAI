@@ -31,4 +31,6 @@ cd frontend && npm i && npm run dev   # second terminal → http://localhost:517
 
 FastAPI · uv · LangGraph · Claude (Anthropic) · Qwen/Groq · Langfuse · NPPES · React/TS/Vite · pytest · Docker
 
+**Product brief (aligned with shipped behavior):** [`docs/product-brief.md`](docs/product-brief.md)
+
 **Diagrams:** `docs/architecture.mermaid`, `docs/user-flow.mermaid`.

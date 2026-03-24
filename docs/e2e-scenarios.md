@@ -2,6 +2,8 @@
 
 This doc covers **automated** tests (pytest) and **manual** browser QA: what to send in chat so testers can run **Scenario A** (finish onboarding) and **Scenario B** (escalation) predictably.
 
+Stakeholder-facing product summary (kept in sync with the app): [`product-brief.md`](product-brief.md).
+
 ---
 
 ## Manual QA — what to type in chat
