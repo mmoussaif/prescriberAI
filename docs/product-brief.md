@@ -80,7 +80,3 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 | `AGENTS.md` | Developer / agent orientation. |
 | `docs/e2e-scenarios.md` | Manual + automated E2E detail. |
 | `docs/product-brief.md` | This brief — product alignment with code. |
-
----
-
-*Last aligned to repository behavior as of the commit that introduces this file; re-verify after major agent or API changes.*
