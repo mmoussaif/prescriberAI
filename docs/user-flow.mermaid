@@ -11,7 +11,7 @@ flowchart TD
 
     Show --> Confirm{Correct?}
     Confirm -->|No| NPI
-    Confirm -->|Yes| Config_Start[AI begins configuration chat<br/>Sidebar shows 6 areas]
+    Confirm -->|Yes| Config_Start[AI begins configuration chat<br/>Sidebar: 6 areas · validated captions<br/>Nonsense → clarify or specialist]
 
     Config_Start --> Q1[Patient Demographics<br/>Age groups served]
     Q1 --> Q2[Prescribing Focus<br/>Drug categories, generics vs brand]

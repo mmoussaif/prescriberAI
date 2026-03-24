@@ -69,7 +69,7 @@ Send **one** user message (after the first assistant turn is fine) that clearly 
 **Pass criteria**
 
 - Assistant response includes language about connecting you with a **PrescriberPoint specialist** (or equivalent escalation phrase defined in the system prompt).
-- UI: **Specialist recommended** banner with **Schedule Call** (prototype).
+- UI: **Specialist recommended** banner with **Call +17743579384** (prototype).
 
 Escalation can appear **together with** normal configuration questions; the banner should still show when the model uses the handoff phrase.
 

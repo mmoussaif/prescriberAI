@@ -61,6 +61,16 @@ class TestChatResponse:
         resp = ChatResponse(response="Hi", current_phase="prior_auth")
         assert resp.needs_escalation is False
 
+    def test_validation_and_sidebar_optional(self):
+        resp = ChatResponse(
+            response="Hi",
+            current_phase="patient_demographics",
+            sidebar_caption="Adults & geriatrics",
+            validation_quality="ok",
+        )
+        assert resp.sidebar_caption == "Adults & geriatrics"
+        assert resp.validation_quality == "ok"
+
 
 class TestChatRequest:
     def test_valid_request(self):

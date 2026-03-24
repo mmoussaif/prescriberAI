@@ -2,7 +2,7 @@
 
 ## What I Built
 
-End-to-end wizard: **NPI lookup** (live NPPES + mock demo NPIs) → **confirm practice** → **AI-guided configuration** (6 areas: demographics, prescribing, prior auth, samples, coverage, provider roles) → **summary**. **React + Vite** frontend; **FastAPI** backend. **LangGraph** agent: classify → respond → check_complete. **Qwen 3** (Groq, free tier) classifies which phase the conversation is in; **Claude Sonnet** generates replies. **Langfuse** hosts the system prompt (`onboarding-system-prompt`, production label). **Sidebar** shows settings as they’re set; completed rows are **clickable to revise**. **Escalation** (multi-site / EMR) shows a specialist banner; chat continues for areas the AI can still configure.
+End-to-end wizard: **NPI lookup** (live NPPES + mock demo NPIs) → **confirm practice** → **AI-guided configuration** (6 areas: demographics, prescribing, prior auth, samples, coverage, provider roles) → **summary**. **React + Vite** frontend; **FastAPI** backend. **LangGraph** agent: classify → **validate** (reply quality + `sidebar_caption`) → respond → check_complete. **Qwen 3** (Groq) classifies phase and validates replies when `GROQ_API_KEY` is set; **Claude Sonnet** generates replies. **Langfuse** hosts the system prompt (`onboarding-system-prompt`, production label). **Sidebar** shows settings with intelligent captions; completed rows are **clickable to revise**. **Escalation** (multi-site / EMR, or repeated nonsense / validator suggestion) shows a specialist banner; chat continues for areas the AI can still configure.
 
 ## Why This Piece
 
@@ -12,12 +12,13 @@ End-to-end wizard: **NPI lookup** (live NPPES + mock demo NPIs) → **confirm pr
 
 ```bash
 uv sync && uv run uvicorn app.main:app --reload --port 8080 --env-file .env
-cd frontend && npm i && npm run dev   # second terminal → http://localhost:5173
+cd frontend && npm i && npm run dev   # second terminal → http://localhost:5173  
+# Optional: `frontend/.env` → `VITE_SPECIALIST_PHONE=+15551234567` for Schedule Walkthrough `tel:` on the summary (escalation uses built-in Call +17743579384)
 ```
 
 **Demo NPIs:** `1234567890` · `9876543210` · `5551234567` (mock if NPPES misses).
 
-**Env:** Copy `.env.example` → `.env`. **Required:** `ANTHROPIC_API_KEY`. **Optional:** `ANTHROPIC_MODEL`, `GROQ_API_KEY` (classifier; else keyword fallback), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` (prompts + observability).
+**Env:** Copy `.env.example` → `.env`. **Required:** `ANTHROPIC_API_KEY`. **Optional:** `ANTHROPIC_MODEL`, `GROQ_API_KEY` (phase classify + reply validate; else keyword + heuristics), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` (prompts + observability).
 
 **Tests:** `uv run pytest tests/ -v` (optional live-LLM chat cases in `tests/test_api_e2e.py` skip without `ANTHROPIC_API_KEY`). **Functional E2E** (NPI + chat, completion vs escalation, mocked Claude): `tests/test_functional_e2e.py` — see [`docs/e2e-scenarios.md`](docs/e2e-scenarios.md) (**Manual QA** = what to type in chat for Scenario A & B). **Agent/dev guide:** [`AGENTS.md`](AGENTS.md).
 

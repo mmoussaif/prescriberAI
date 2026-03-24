@@ -9,7 +9,7 @@ alwaysApply: true
 
 - **Backend**: FastAPI (Python 3.12), managed with `uv`. Entry point: `app/main.py`.
 - **Frontend**: React + TypeScript (Vite) in `frontend/`. Proxy `/api` to `:8080`.
-- **Agent**: LangGraph state graph in `app/services/ai_service.py` — classify → respond → check_complete.
+- **Agent**: LangGraph state graph in `app/services/ai_service.py` — classify → validate → respond → check_complete. Groq/Qwen validates replies and fills `sidebar_caption` when `GROQ_API_KEY` is set.
 - **Prompt management**: Langfuse. Prompt name: `onboarding-system-prompt`. Fetched at runtime with `label="production"`.
 - **Observability**: Langfuse `CallbackHandler` traces every LLM call.
 
@@ -27,10 +27,10 @@ cd frontend && npm run dev
 
 - Backend deps go in `pyproject.toml`, sync with `uv sync`.
 - Frontend deps go in `frontend/package.json`.
-- API responses include `current_phase` and `needs_escalation` alongside `response`.
+- API responses include `current_phase`, `needs_escalation`, optional `sidebar_caption`, and `validation_quality` alongside `response`.
 - Escalation triggers when AI includes "connect you with a PrescriberPoint specialist" in its response.
 - Config areas are ordered: patient_demographics → prescribing_focus → prior_auth → sample_management → coverage_affordability → provider_roles.
-- Env vars: `ANTHROPIC_API_KEY` (required), `ANTHROPIC_MODEL` (optional), `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST` (optional).
+- Env vars: `ANTHROPIC_API_KEY` (required), `ANTHROPIC_MODEL` (optional), `GROQ_API_KEY` (optional — phase classify + reply validate), `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST` (optional).
 - CORS origins default to `http://localhost:5173` for Vite dev server.
 
 ## Key files
@@ -38,6 +38,7 @@ cd frontend && npm run dev
 | File | Purpose |
 |------|---------|
 | `app/services/ai_service.py` | LangGraph agent, Langfuse prompt fetch, escalation signals |
+| `app/services/onboarding_validation.py` | Reply quality + sidebar caption (Groq JSON or heuristics) |
 | `app/services/npi_service.py` | NPPES live lookup + mock fallback |
 | `app/models/schemas.py` | Pydantic models shared between routers and services |
 | `frontend/src/components/Chat.tsx` | Chat UI + config sidebar integration |

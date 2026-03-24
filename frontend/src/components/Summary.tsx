@@ -1,4 +1,5 @@
 import type { PracticeInfo } from "../types";
+import ScheduleCallLink from "./ScheduleCallLink";
 
 interface Props {
   practice: PracticeInfo;
@@ -48,14 +49,7 @@ export default function Summary({ practice, summaryText }: Props) {
         >
           Go to Dashboard
         </button>
-        <button
-          className="btn btn-outline"
-          onClick={() =>
-            alert("In production: schedules a CS walkthrough call.")
-          }
-        >
-          Schedule Walkthrough
-        </button>
+        <ScheduleCallLink label="Schedule Walkthrough" variant="md" />
       </div>
     </div>
   );

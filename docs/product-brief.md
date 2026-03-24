@@ -21,7 +21,7 @@ Deliver a **credible end-to-end demo**: a practice admin enters an **NPI**, conf
 |------|----------------------|--------------|
 | 1 | NPI entry | User enters a **10-digit NPI**. Backend `GET /api/npi/{npi}` returns practice name, address, specialty, providers. **Live NPPES** is tried first; known **demo NPIs** use **mock data** if lookup fails or for offline demos (`app/services/npi_service.py`). |
 | 2 | Confirm | User verifies **Yes, that’s us** or goes back. |
-| 3 | Chat + sidebar | AI asks **one question per turn** (system rules). A **configuration sidebar** lists the six areas with **live phase** and **completed** rows; **completed rows are clickable** to send a **revise** message for that area (`frontend/src/components/Chat.tsx`, `ConfigSidebar.tsx`). |
+| 3 | Chat + sidebar | AI asks **one question per turn** (system rules). Each user reply is run through **validate** (Groq/Qwen JSON when `GROQ_API_KEY` is set, else heuristics): **`sidebar_caption`** for intelligent sidebar labels, **quality** `ok` / `weak` / `nonsense`. Nonsense triggers a stricter Claude instruction; two consecutive bad replies or LLM **`escalate_suggested`** returns a fixed **specialist** message. The sidebar lists six areas; **completed rows are clickable** to revise (`Chat.tsx`, `ConfigSidebar.tsx`). |
 | 4 | Summary | When the assistant’s reply contains the exact substring **`CONFIGURATION COMPLETE`** (case-insensitive), the client advances to the **summary** view with that text. |
 
 **Progress bar:** Maps to coarse stages (identify / configure / done)—see `ProgressBar` + `STEP_INDEX` in `frontend/src/App.tsx`.
@@ -37,7 +37,7 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 5. **Coverage & affordability** — Patient assistance, copay cards, what to surface.  
 6. **Provider roles** — Who may submit PAs, request samples, administer the account.
 
-**Phase model:** Each chat turn runs a **classifier** (Groq **Qwen** when `GROQ_API_KEY` is set; otherwise **keyword fallback** on conversation text) to set `current_phase`, exposed in **`POST /api/chat`** as `current_phase`. The UI only marks a phase **completed** in the sidebar when the phase **moves forward** in this order and the user has provided a substantive reply (see `Chat.tsx` logic)—reducing false progress on bad answers.
+**Phase model:** Each chat turn runs a **classifier** (Groq **Qwen** when `GROQ_API_KEY` is set; otherwise **keyword fallback** on conversation text) to set `current_phase`, exposed in **`POST /api/chat`** as `current_phase`. The sidebar marks phases **complete** (green) when `current_phase` moves **forward** in order: if the API jumps several steps at once, **every skipped area** in between is marked (middle rows show "—" until replaced). When the assistant returns **`CONFIGURATION COMPLETE`**, any area still unchecked is backfilled so **all six** show complete before the summary step.
 
 ## 5. Escalation (product + detection)
 
@@ -45,7 +45,7 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 
 **Prompt instruction (fallback / Langfuse-aligned intent):** The model is instructed to include the phrase **`connect you with a PrescriberPoint specialist`** when those topics appear (`FALLBACK_PROMPT` in `ai_service.py`).
 
-**API / UI signal:** `check_complete` sets `needs_escalation` if the assistant’s **last reply** contains any of the lowercase substrings in `ESCALATION_SIGNALS` (e.g. `connect you with a prescriberpoint specialist`, `beyond what i can configure`, …). The UI shows a **Specialist recommended** banner and a **Schedule Call** button (prototype stub: alert only).
+**API / UI signal:** `check_complete` sets `needs_escalation` if the assistant’s **last reply** contains any of the lowercase substrings in `ESCALATION_SIGNALS` (e.g. `connect you with a prescriberpoint specialist`, `beyond what i can configure`, …). The UI shows a **Specialist recommended** banner and **Call +17743579384** (`tel:`). **Schedule Walkthrough** on the summary uses `VITE_SPECIALIST_PHONE` when set; otherwise inline setup instructions.
 
 ## 6. Technical summary (aligned with repo)
 
@@ -53,12 +53,12 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 |--------|------------------|
 | Frontend | React 19, TypeScript, Vite; dev server proxies `/api` to backend `:8080`. |
 | Backend | FastAPI, Python 3.12+, `uv`; CORS for Vite origin. |
-| Agent | **LangGraph:** `classify` → `respond` → `check_complete` per user message. |
+| Agent | **LangGraph:** `classify` → `validate` → `respond` → `check_complete` per user message (`app/services/ai_service.py`, `onboarding_validation.py`). |
 | Response model | **Anthropic** via LangChain `ChatAnthropic`; model id from **`ANTHROPIC_MODEL`** env (default `claude-sonnet-4-20250514` in `app/config.py`). |
-| Classifier | **Groq** OpenAI-compatible API, default model **`qwen/qwen3-32b`**; optional. |
+| Classifier + validation | **Groq** (same key as `GROQ_API_KEY`), default **`qwen/qwen3-32b`**; drives phase **classifier** and reply **validator**. Optional — without it, keyword classify + heuristic validation apply. |
 | Prompts | Langfuse prompt **`onboarding-system-prompt`**, label **`production`**, if `LANGFUSE_PUBLIC_KEY` / secret / host set; else in-repo fallback string. |
 | Observability | Langfuse **LangChain `CallbackHandler`** on graph runs when public key set; traces include session id from client (`session_id` on `ChatRequest`). |
-| APIs | `GET /api/npi/{npi}`, `POST /api/chat` (body: `messages`, `practice_context`, optional `session_id`). Response: `response`, `current_phase`, `needs_escalation`. |
+| APIs | `GET /api/npi/{npi}`, `POST /api/chat` (body: `messages`, `practice_context`, optional `session_id`). Response: `response`, `current_phase`, `needs_escalation`, optional `sidebar_caption`, `validation_quality`. |
 
 ## 7. How we test (reviewer checklist)
 

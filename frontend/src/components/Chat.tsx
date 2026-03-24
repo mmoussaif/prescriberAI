@@ -3,6 +3,7 @@ import type { PracticeInfo, ChatMessage } from "../types";
 import { CONFIG_AREAS } from "../types";
 import { sendChat } from "../api";
 import ConfigSidebar from "./ConfigSidebar";
+import ScheduleCallLink from "./ScheduleCallLink";
 
 const PHASE_ORDER = CONFIG_AREAS.map((a) => a.key);
 
@@ -83,20 +84,32 @@ export default function Chat({ practice, onComplete }: Props) {
       setHistory((prev) => [...prev, { role: "assistant", content: data.response }]);
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
 
+      const previousPhase = prevPhase.current;
+
       const advanced =
-        data.current_phase !== prevPhase.current &&
-        phaseIndex(data.current_phase) > phaseIndex(prevPhase.current) &&
+        data.current_phase !== previousPhase &&
+        phaseIndex(data.current_phase) > phaseIndex(previousPhase) &&
         lastUserMsg.current;
 
       if (advanced) {
+        const pi = phaseIndex(previousPhase);
+        const ni = phaseIndex(data.current_phase);
+        const primaryLabel =
+          data.sidebar_caption?.trim() &&
+          data.validation_quality !== "nonsense"
+            ? truncate(data.sidebar_caption.trim(), 60)
+            : truncate(lastUserMsg.current, 60);
         setCompletedPhases((prev) => {
           const next = new Map(prev);
-          next.set(prevPhase.current, truncate(lastUserMsg.current, 60));
+          for (let i = pi; i < ni && i < PHASE_ORDER.length; i++) {
+            const k = PHASE_ORDER[i];
+            if (!next.has(k)) {
+              next.set(k, i === pi ? primaryLabel : "—");
+            }
+          }
           return next;
         });
       }
-      prevPhase.current = data.current_phase;
-      setActivePhase(data.current_phase);
 
       if (data.needs_escalation) {
         setEscalation(true);
@@ -105,13 +118,26 @@ export default function Chat({ practice, onComplete }: Props) {
       if (isComplete(data.response)) {
         setCompletedPhases((prev) => {
           const next = new Map(prev);
-          if (lastUserMsg.current) {
-            next.set(prevPhase.current, truncate(lastUserMsg.current, 60));
+          if (lastUserMsg.current && PHASE_ORDER.includes(previousPhase)) {
+            const cap =
+              data.sidebar_caption?.trim() &&
+              data.validation_quality !== "nonsense"
+                ? truncate(data.sidebar_caption.trim(), 60)
+                : truncate(lastUserMsg.current, 60);
+            next.set(previousPhase, cap);
+          }
+          for (const { key } of CONFIG_AREAS) {
+            if (!next.has(key)) {
+              next.set(key, "Completed");
+            }
           }
           return next;
         });
         setTimeout(() => onComplete(data.response), 1400);
       }
+
+      prevPhase.current = data.current_phase;
+      setActivePhase(data.current_phase);
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : "Connection error.";
       setMessages((prev) => [
@@ -189,12 +215,11 @@ export default function Chat({ practice, onComplete }: Props) {
               <strong>Specialist recommended</strong>
               <span>Part of this setup needs hands-on configuration. A PrescriberPoint specialist will follow up.</span>
             </div>
-            <button
-              className="btn btn-outline btn-sm"
-              onClick={() => alert("In production: schedules a specialist callback.")}
-            >
-              Schedule Call
-            </button>
+            <ScheduleCallLink
+              label="Call +17743579384"
+              dialPhone="+17743579384"
+              variant="sm"
+            />
           </div>
         )}
 

@@ -7,10 +7,11 @@ alwaysApply: false
 # Backend Rules
 
 - Use Pydantic models from `app/models/schemas.py` for all request/response types.
-- The LangGraph `OnboardingState` TypedDict drives the agent; nodes must return the full state.
+- The LangGraph `OnboardingState` TypedDict drives the agent; graph is `classify` → `validate` → `respond` → `check_complete`. Nodes must return the full state.
+- `onboarding_validation.py`: Groq/Qwen JSON for `sidebar_caption` + reply quality; heuristic fallback. Repeated nonsense → specialist template (skips Claude).
 - `_compile_system_prompt()` fetches from Langfuse first, falls back to `FALLBACK_PROMPT`. Never hardcode prompt changes without updating both.
 - Escalation is detected in `check_complete` via `ESCALATION_SIGNALS` phrase list. Add new signals there, always lowercase.
 - The `classify_phase` node uses Qwen 3 (via Groq) when `GROQ_API_KEY` is set, with keyword fallback. Qwen 3 returns `<think>` tags — strip them with `_THINK_RE` before parsing.
 - NPI service tries live NPPES first (`httpx`, 5s timeout), then mock fallback. Log failures, don't swallow silently.
-- `ChatResponse` includes `current_phase` and `needs_escalation` alongside `response`.
-- Langfuse v4 removed `langfuse.callback.CallbackHandler`. Use `langfuse.observe` decorator or direct client for tracing.
+- `ChatResponse` includes `current_phase`, `needs_escalation`, `sidebar_caption`, `validation_quality` alongside `response`.
+- Langfuse tracing uses `langfuse.langchain.CallbackHandler` when keys are set.

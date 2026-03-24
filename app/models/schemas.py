@@ -30,6 +30,8 @@ class ChatResponse(BaseModel):
     response: str
     current_phase: str
     needs_escalation: bool = False
+    sidebar_caption: str | None = None
+    validation_quality: str = "ok"
 
 
 class ErrorResponse(BaseModel):

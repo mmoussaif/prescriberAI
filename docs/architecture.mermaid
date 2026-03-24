@@ -22,10 +22,11 @@ flowchart TB
 
     subgraph LANGGRAPH["LangGraph Agent"]
         direction TB
-        Classify["classify<br/>Qwen 3 via Groq<br/>(free tier)"]
+        Classify["classify<br/>Qwen 3 via Groq"]
+        Validate["validate<br/>Qwen JSON · sidebar caption<br/>nonsense → clarify / CS"]
         Respond["respond<br/>Claude Sonnet<br/>+ Langfuse prompt"]
         Check["check_complete<br/>Done · Escalate"]
-        Classify --> Respond --> Check
+        Classify --> Validate --> Respond --> Check
     end
 
     subgraph PROMPTS["Prompt Management"]
@@ -48,11 +49,12 @@ flowchart TB
     Confirm -->|"Confirmed"| Chat_UI
     Chat_UI -->|"Messages + context"| Chat_Router
     Chat_Router --> Classify
-    Classify -->|"Classify call"| Groq
+    Classify -->|"Phase classify"| Groq
+    Validate -->|"Reply validate"| Groq
     Respond -->|"Fetch prompt"| Langfuse
     Respond -->|"Generate response"| Claude
     Check --> Chat_Router
-    Chat_Router -->|"response + phase + escalation"| Chat_UI
+    Chat_Router -->|"response · phase · escalation · sidebar_caption"| Chat_UI
     Chat_UI -->|"CONFIGURATION COMPLETE"| Summary
 
     style USER fill:#E3F2FD,stroke:#1565C0,color:#000

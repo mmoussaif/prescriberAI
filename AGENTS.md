@@ -4,7 +4,7 @@ Quick orientation for humans and coding agents working on this repository.
 
 ## What this is
 
-PrescriberPoint **AI practice onboarding** prototype: NPI lookup → practice confirm → conversational configuration (six areas) → summary. Backend is **FastAPI**; frontend is **React + Vite + TypeScript**. The agent is a **LangGraph** graph (`classify` → `respond` → `check_complete`) in `app/services/ai_service.py`.
+PrescriberPoint **AI practice onboarding** prototype: NPI lookup → practice confirm → conversational configuration (six areas) → summary. Backend is **FastAPI**; frontend is **React + Vite + TypeScript**. The agent is a **LangGraph** graph (`classify` → `validate` → `respond` → `check_complete`) in `app/services/ai_service.py` with `app/services/onboarding_validation.py` for reply quality and `sidebar_caption`.
 
 ## Run locally
 
@@ -15,6 +15,8 @@ cd frontend && npm install && npm run dev
 ```
 
 Open `http://localhost:5173`. API is proxied to `:8080`.
+
+Optional: `frontend/.env` with `VITE_SPECIALIST_PHONE=+1…` so **Schedule Walkthrough** on the summary uses a **`tel:`** link (see `frontend/.env.example`). The escalation banner uses **Call +17743579384** with `tel:` built in. Restart `npm run dev` after changing env. Without a number on the summary, that button toggles **inline setup instructions**. Test `tel:` in a normal desktop/mobile browser if the IDE browser does nothing.
 
 ## Tests
 

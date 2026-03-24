@@ -21,6 +21,8 @@ export interface ChatApiResponse {
   response: string;
   current_phase: string;
   needs_escalation: boolean;
+  sidebar_caption?: string | null;
+  validation_quality?: string;
 }
 
 export interface ConfigEntry {
