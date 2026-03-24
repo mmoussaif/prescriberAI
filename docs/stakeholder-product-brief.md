@@ -1,7 +1,5 @@
 # Product Brief: AI-Powered Practice Onboarding
 
-\*\* Technical Product Chief of Staff Assessment
-
 We will replace our manual onboarding process with an AI-guided self-serve experience, reducing practice activation from 2–3 CS calls to a single sub-20-minute session for 80% of incoming practices. This is the single highest-leverage investment available right now. PrescriberPoint serves 500K+ HCPs monthly across drug lookup, prior authorization, sample ordering, and coverage tools—but every new practice still requires a CS rep to walk them through configuration manually. That model breaks at scale. If we double practice acquisition, we must either double CS headcount or break the linear relationship between new signups and onboarding labor. AI breaks that relationship.
 
 ## 1. The Onboarding Experience from the Practice’s Perspective
