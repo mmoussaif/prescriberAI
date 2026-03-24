@@ -1,8 +1,5 @@
 # PrescriberPoint — AI Practice Onboarding (Prototype)
 
-**Repository description (for GitHub “About” or internal listings):**  
-*Prototype wizard: NPI-backed practice setup, six-topic AI configuration chat (LangGraph + Claude, optional Groq validation), escalation to a specialist line, and a browser-local dashboard of completed onboardings.*
-
 ## What I Built
 
 End-to-end wizard: **Dashboard** (practices completed in this browser, `localStorage`) → **NPI lookup** (live NPPES + mock demo NPIs) → **confirm practice** → **AI-guided configuration** (6 areas: demographics, prescribing, prior auth, samples, coverage, provider roles) → **summary** → return to Dashboard. **React + Vite** frontend; **FastAPI** backend. **LangGraph** agent: classify → **validate** (reply quality + `sidebar_caption`) → respond → check_complete. **Qwen 3** (Groq) classifies phase and validates replies when `GROQ_API_KEY` is set; **Claude Sonnet** generates replies. **Langfuse** hosts the system prompt (`onboarding-system-prompt`, production label). **Sidebar** shows settings with intelligent captions; completed rows are **clickable to revise**. **Escalation** (multi-site / EMR, or repeated nonsense / validator suggestion) shows a specialist banner; chat continues for areas the AI can still configure.

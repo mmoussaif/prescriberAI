@@ -77,7 +77,7 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 
 | Doc | Purpose |
 |-----|---------|
-| `README.md` | One-page overview, run commands, env summary, repo blurb for listings. |
+| `README.md` | One-page overview, run commands, env summary. |
 | `AGENTS.md` | Developer / agent orientation. |
 | `tests/README.md` | Pytest module map and commands. |
 | `docs/e2e-scenarios.md` | Manual + automated E2E detail. |
