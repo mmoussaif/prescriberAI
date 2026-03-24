@@ -13,18 +13,19 @@ New practices must configure PrescriberPoint before using drug lookup, prior aut
 
 Deliver a **credible end-to-end demo**: a practice admin enters an **NPI**, confirms registry data, completes an **AI-guided configuration chat** across **six fixed areas**, then sees a **summary**. The experience must support **escalation** to a human specialist when the practice’s needs exceed self-serve setup—without blocking the rest of the conversation.
 
-**Non-goals for this prototype:** SSO, real account persistence, scheduling callbacks, billing, or production security/compliance hardening.
+**Non-goals for this prototype:** SSO, **server-side** account persistence (the UI stores completed onboardings in **browser `localStorage` only**), production scheduling callbacks, billing, or production security/compliance hardening.
 
 ## 3. Primary user flow (as implemented)
 
 | Step | UI state (`App.tsx`) | What happens |
 |------|----------------------|--------------|
+| 0 | **Dashboard** (`step === "home"`) | Lists **configured practices** for this browser (`localStorage`, `configuredAccountsStorage.ts`). User opens a card to re-read the summary or **Configure a practice** to start the wizard. **Dashboard** in the header is hidden here; shown on later steps to return home. |
 | 1 | NPI entry | User enters a **10-digit NPI**. Backend `GET /api/npi/{npi}` returns practice name, address, specialty, providers. **Live NPPES** is tried first; known **demo NPIs** use **mock data** if lookup fails or for offline demos (`app/services/npi_service.py`). |
 | 2 | Confirm | User verifies **Yes, that’s us** or goes back. |
-| 3 | Chat + sidebar | AI asks **one question per turn** (system rules). Each user reply is run through **validate** (Groq/Qwen JSON when `GROQ_API_KEY` is set, else heuristics): **`sidebar_caption`** for intelligent sidebar labels, **quality** `ok` / `weak` / `nonsense`. Nonsense triggers a stricter Claude instruction; two consecutive bad replies or LLM **`escalate_suggested`** returns a fixed **specialist** message. The sidebar lists six areas; **completed rows are clickable** to revise (`Chat.tsx`, `ConfigSidebar.tsx`). |
-| 4 | Summary | When the assistant’s reply contains the exact substring **`CONFIGURATION COMPLETE`** (case-insensitive), the client advances to the **summary** view with that text. |
+| 3 | Chat + sidebar | AI asks **one question per turn** (system rules). Each user reply is run through **validate** (Groq/Qwen JSON when `GROQ_API_KEY` is set, else heuristics): **`sidebar_caption`** for intelligent sidebar labels, **quality** `ok` / `weak` / `nonsense`. Nonsense triggers a stricter Claude instruction; two consecutive bad replies or LLM **`escalate_suggested`** returns a fixed **specialist** message. The sidebar lists six areas; **completed rows are clickable** to revise (`Chat.tsx`, `ConfigSidebar.tsx`). Composer: **Enter** sends, **Shift+Enter** inserts a newline. |
+| 4 | Summary | When the assistant’s reply contains the exact substring **`CONFIGURATION COMPLETE`** (case-insensitive), the client advances to the **summary** view with that text. Completing chat **persists** the practice + summary to `localStorage` (upsert by NPI). **Go to Dashboard** returns to step 0. |
 
-**Progress bar:** Maps to coarse stages (identify / configure / done)—see `ProgressBar` + `STEP_INDEX` in `frontend/src/App.tsx`.
+**Progress bar:** Three segments; `WIZARD_PROGRESS` in `App.tsx` maps **NPI → confirm/chat → summary**. On **summary**, `current` is **`3`** so all segments render **complete** (green), not “active” (blue) on the last bar—see `ProgressBar` comment.
 
 ## 4. Configuration scope (six areas)
 
@@ -62,8 +63,8 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 
 ## 7. How we test (reviewer checklist)
 
-- **Automated:** `uv run pytest tests/test_functional_e2e.py` — Scenario A (completion) and B (escalation) over HTTP with mocked Claude.  
-- **Manual chat scripts:** `docs/e2e-scenarios.md` (suggested user messages for A and B).  
+- **Automated:** `uv run pytest tests/` — full suite; per-file map in **`tests/README.md`**. Journeys: `tests/test_functional_e2e.py` (Scenario A completion, B escalation) over HTTP with **mocked Claude**; optional live LLM in `tests/test_api_e2e.py` when `ANTHROPIC_API_KEY` is set.  
+- **Manual chat scripts:** `docs/e2e-scenarios.md` (suggested user messages for A and B, including Dashboard entry).  
 - **Diagrams:** `docs/architecture.mermaid`, `docs/user-flow.mermaid`.
 
 ## 8. Success criteria (observable)
@@ -76,7 +77,8 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 
 | Doc | Purpose |
 |-----|---------|
-| `README.md` | One-page overview, run commands, env summary. |
+| `README.md` | One-page overview, run commands, env summary, repo blurb for listings. |
 | `AGENTS.md` | Developer / agent orientation. |
+| `tests/README.md` | Pytest module map and commands. |
 | `docs/e2e-scenarios.md` | Manual + automated E2E detail. |
 | `docs/product-brief.md` | This brief — product alignment with code. |

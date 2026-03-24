@@ -8,7 +8,7 @@ alwaysApply: true
 ## Architecture
 
 - **Backend**: FastAPI (Python 3.12), managed with `uv`. Entry point: `app/main.py`.
-- **Frontend**: React + TypeScript (Vite) in `frontend/`. Proxy `/api` to `:8080`.
+- **Frontend**: React + TypeScript (Vite) in `frontend/`. Proxy `/api` to `:8080`. Landing **Dashboard** persists completed onboardings in **browser `localStorage`** (`configuredAccountsStorage.ts`).
 - **Agent**: LangGraph state graph in `app/services/ai_service.py` — classify → validate → respond → check_complete. Groq/Qwen validates replies and fills `sidebar_caption` when `GROQ_API_KEY` is set.
 - **Prompt management**: Langfuse. Prompt name: `onboarding-system-prompt`. Fetched at runtime with `label="production"`.
 - **Observability**: Langfuse `CallbackHandler` traces every LLM call.
@@ -41,6 +41,10 @@ cd frontend && npm run dev
 | `app/services/onboarding_validation.py` | Reply quality + sidebar caption (Groq JSON or heuristics) |
 | `app/services/npi_service.py` | NPPES live lookup + mock fallback |
 | `app/models/schemas.py` | Pydantic models shared between routers and services |
-| `frontend/src/components/Chat.tsx` | Chat UI + config sidebar integration |
+| `frontend/src/App.tsx` | Steps: home → npi → confirm → chat → summary; `WIZARD_PROGRESS` |
+| `frontend/src/components/Chat.tsx` | Chat UI, sidebar, escalation; textarea composer |
+| `frontend/src/components/AccountsHome.tsx` | Dashboard grid of saved practices |
+| `frontend/src/configuredAccountsStorage.ts` | `localStorage` load/save/remove |
 | `frontend/src/components/ConfigSidebar.tsx` | Live settings tracker |
 | `frontend/src/types.ts` | Shared TypeScript types and CONFIG_AREAS definition |
+| `tests/README.md` | Pytest module map |

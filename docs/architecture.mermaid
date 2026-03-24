@@ -8,6 +8,7 @@ flowchart TB
     end
 
     subgraph FRONTEND["Frontend · React + TypeScript · Vite"]
+        Dashboard["Dashboard<br/>saved practices · localStorage"]
         NPI_Form["NPI Input"]
         Confirm["Practice Confirmation"]
         Chat_UI["Chat + Config Sidebar"]
@@ -39,7 +40,8 @@ flowchart TB
         Claude["Anthropic · Claude Sonnet"]
     end
 
-    Browser --> NPI_Form
+    Browser --> Dashboard
+    Dashboard -->|"Configure"| NPI_Form
     NPI_Form -->|"NPI #"| NPI_Router
     NPI_Router --> NPI_Svc
     NPI_Svc -->|"Lookup"| NPPES
@@ -56,6 +58,7 @@ flowchart TB
     Check --> Chat_Router
     Chat_Router -->|"response · phase · escalation · sidebar_caption"| Chat_UI
     Chat_UI -->|"CONFIGURATION COMPLETE"| Summary
+    Summary -->|"Go to Dashboard"| Dashboard
 
     style USER fill:#E3F2FD,stroke:#1565C0,color:#000
     style FRONTEND fill:#F3E5F5,stroke:#7B1FA2,color:#000

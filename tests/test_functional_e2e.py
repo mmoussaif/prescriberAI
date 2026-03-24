@@ -1,9 +1,12 @@
 """Full functional E2E journeys over HTTP (FastAPI TestClient).
 
-These tests exercise the same routes the React app uses: NPI lookup and chat.
-Claude is mocked so they run in CI without ANTHROPIC_API_KEY.
+Exercises the same routes the React app uses: ``GET /api/npi/{npi}`` and
+``POST /api/chat``. **Claude** (``ChatAnthropic``) is mocked so CI needs no
+``ANTHROPIC_API_KEY``. The LangGraph pipeline still runs **classify → validate →
+respond → check_complete**; with **Groq** unset, validate uses heuristics.
 
-Scenario documentation: docs/e2e-scenarios.md
+Scenario tables and manual scripts: ``docs/e2e-scenarios.md``.
+Test index: ``tests/README.md``.
 """
 
 from __future__ import annotations

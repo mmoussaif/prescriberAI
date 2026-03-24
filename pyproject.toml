@@ -1,7 +1,7 @@
 [project]
 name = "onboarding-wizard"
 version = "0.1.0"
-description = "PrescriberPoint AI Practice Onboarding"
+description = "PrescriberPoint AI practice onboarding: NPI lookup, LangGraph+Claude config chat, optional Groq validation, FastAPI backend"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi==0.115.0",

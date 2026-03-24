@@ -2,7 +2,8 @@
 
 This doc covers **automated** tests (pytest) and **manual** browser QA: what to send in chat so testers can run **Scenario A** (finish onboarding) and **Scenario B** (escalation) predictably.
 
-Stakeholder-facing product summary (kept in sync with the app): [`product-brief.md`](product-brief.md).
+- **Pytest layout:** [`tests/README.md`](../tests/README.md) (what each test file does, CI assumptions).
+- **Stakeholder summary:** [`product-brief.md`](product-brief.md).
 
 ---
 
@@ -11,8 +12,9 @@ Stakeholder-facing product summary (kept in sync with the app): [`product-brief.
 **Setup**
 
 - Run backend + frontend (`AGENTS.md`).
-- Open `http://localhost:5173`. The **Dashboard** lists practices saved in this browser (after a completed run). Click **Configure a practice** (or **Start onboarding** if the list is empty), then use demo NPI **`1234567890`** (mock practice) or any valid flow to **Confirm** and enter chat.
+- Open `http://localhost:5173`. The **Dashboard** lists practices saved in this browser (after a completed run). Click **Configure a practice** (empty state shows a single CTA in the card), then use demo NPI **`1234567890`** (mock practice) or any valid flow to **Confirm** and enter chat.
 - During the wizard, **Dashboard** in the header returns to the saved-practice grid without losing stored summaries.
+- In chat, **Enter** sends a message; **Shift+Enter** adds a new line (multi-line replies).
 
 **How the assistant behaves**
 
@@ -103,8 +105,9 @@ Coverage lives in `tests/test_functional_e2e.py`. Those tests call the **same HT
 
 ### What automation does not cover
 
-- **Real browser/UI** — no Playwright/Cypress in repo; use the **Manual QA** section above.
-- **Real Anthropic / Groq** — optional live checks in `tests/test_api_e2e.py` when `ANTHROPIC_API_KEY` is set.
+- **Real browser/UI** — no Playwright/Cypress in repo; use the **Manual QA** section above (Dashboard, `localStorage`, progress bar, and composer behavior are UI-only).
+- **Real Anthropic** — optional live checks in `tests/test_api_e2e.py` when `ANTHROPIC_API_KEY` is set.
+- **Groq** — functional E2E assumes keyword/heuristic classify + validate unless you set `GROQ_API_KEY` locally (then behavior may differ from CI).
 
 ### Running automated scenarios
 

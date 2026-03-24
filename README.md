@@ -1,8 +1,11 @@
 # PrescriberPoint — AI Practice Onboarding (Prototype)
 
+**Repository description (for GitHub “About” or internal listings):**  
+*Prototype wizard: NPI-backed practice setup, six-topic AI configuration chat (LangGraph + Claude, optional Groq validation), escalation to a specialist line, and a browser-local dashboard of completed onboardings.*
+
 ## What I Built
 
-End-to-end wizard: **NPI lookup** (live NPPES + mock demo NPIs) → **confirm practice** → **AI-guided configuration** (6 areas: demographics, prescribing, prior auth, samples, coverage, provider roles) → **summary**. **React + Vite** frontend; **FastAPI** backend. **LangGraph** agent: classify → **validate** (reply quality + `sidebar_caption`) → respond → check_complete. **Qwen 3** (Groq) classifies phase and validates replies when `GROQ_API_KEY` is set; **Claude Sonnet** generates replies. **Langfuse** hosts the system prompt (`onboarding-system-prompt`, production label). **Sidebar** shows settings with intelligent captions; completed rows are **clickable to revise**. **Escalation** (multi-site / EMR, or repeated nonsense / validator suggestion) shows a specialist banner; chat continues for areas the AI can still configure.
+End-to-end wizard: **Dashboard** (practices completed in this browser, `localStorage`) → **NPI lookup** (live NPPES + mock demo NPIs) → **confirm practice** → **AI-guided configuration** (6 areas: demographics, prescribing, prior auth, samples, coverage, provider roles) → **summary** → return to Dashboard. **React + Vite** frontend; **FastAPI** backend. **LangGraph** agent: classify → **validate** (reply quality + `sidebar_caption`) → respond → check_complete. **Qwen 3** (Groq) classifies phase and validates replies when `GROQ_API_KEY` is set; **Claude Sonnet** generates replies. **Langfuse** hosts the system prompt (`onboarding-system-prompt`, production label). **Sidebar** shows settings with intelligent captions; completed rows are **clickable to revise**. **Escalation** (multi-site / EMR, or repeated nonsense / validator suggestion) shows a specialist banner; chat continues for areas the AI can still configure.
 
 ## Why This Piece
 
@@ -20,7 +23,7 @@ cd frontend && npm i && npm run dev   # second terminal → http://localhost:517
 
 **Env:** Copy `.env.example` → `.env`. **Required:** `ANTHROPIC_API_KEY`. **Optional:** `ANTHROPIC_MODEL`, `GROQ_API_KEY` (phase classify + reply validate; else keyword + heuristics), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` (prompts + observability).
 
-**Tests:** `uv run pytest tests/ -v` (optional live-LLM chat cases in `tests/test_api_e2e.py` skip without `ANTHROPIC_API_KEY`). **Functional E2E** (NPI + chat, completion vs escalation, mocked Claude): `tests/test_functional_e2e.py` — see [`docs/e2e-scenarios.md`](docs/e2e-scenarios.md) (**Manual QA** = what to type in chat for Scenario A & B). **Agent/dev guide:** [`AGENTS.md`](AGENTS.md).
+**Tests:** `uv run pytest tests/ -v` — overview of modules and commands in [`tests/README.md`](tests/README.md). Optional live-LLM chat cases in `tests/test_api_e2e.py` skip without `ANTHROPIC_API_KEY`. **Functional E2E** (NPI + chat, completion vs escalation, mocked Claude): `tests/test_functional_e2e.py`; **manual browser scripts** in [`docs/e2e-scenarios.md`](docs/e2e-scenarios.md). **Agent/dev guide:** [`AGENTS.md`](AGENTS.md).
 
 ## What I’d Do Next
 

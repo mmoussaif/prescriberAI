@@ -3,7 +3,10 @@ title: Practice Onboarding — User Flow
 ---
 
 flowchart TD
-    Start([Practice admin begins onboarding]) --> NPI[Enter NPI Number]
+    Start([Practice admin opens app]) --> Dash[Dashboard<br/>Practices saved in this browser]
+    Dash -->|Configure a practice| NPI[Enter NPI Number]
+    Dash -->|Open saved card| ViewSum[View stored summary]
+    ViewSum --> Dash
     NPI --> Lookup{NPPES Lookup}
     Lookup -->|Found| Show[Display practice name,<br/>address, specialty, providers]
     Lookup -->|Not Found| Retry[Show error · retry]
@@ -30,17 +33,18 @@ flowchart TD
     Q3 -.->|Multi-location or EMR mentioned| Escalate
     Q6 --> Check{Escalation<br/>needed?}
     Check -->|No| Complete[CONFIGURATION COMPLETE<br/>Show summary + sidebar]
-    Check -->|Yes| Escalate[Escalation banner<br/>Schedule specialist call]
+    Check -->|Yes| Escalate[Escalation banner<br/>Call +17743579384 tel link]
 
     Escalate --> Continue[Continue configuring<br/>what AI can handle]
     Continue --> Q1
 
-    Complete --> Dashboard[Go to Dashboard]
+    Complete --> DashBtn[Go to Dashboard]
+    DashBtn --> Dash
     Complete --> Schedule[Schedule walkthrough call]
 
     style Start fill:#E3F2FD,stroke:#1565C0,color:#000
+    style Dash fill:#E8F5E9,stroke:#2E7D32,color:#000
     style Complete fill:#E8F5E9,stroke:#2E7D32,color:#000
     style Escalate fill:#FFFBEB,stroke:#F59E0B,color:#000
-    style Dashboard fill:#E8F5E9,stroke:#2E7D32,color:#000
     style Revise fill:#EFF6FF,stroke:#2563EB,color:#000
     style Check fill:#FCE4EC,stroke:#C62828,color:#000
