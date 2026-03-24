@@ -17,7 +17,7 @@ cd frontend && npm i && npm run dev   # second terminal → http://localhost:517
 
 **Demo NPIs:** `1234567890` · `9876543210` · `5551234567` (mock if NPPES misses).
 
-**Env:** Copy `.env.example` → `.env`. **Required:** `ANTHROPIC_API_KEY`. **Optional:** `GROQ_API_KEY` (classifier; else keyword fallback), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` (prompts + observability).
+**Env:** Copy `.env.example` → `.env`. **Required:** `ANTHROPIC_API_KEY`. **Optional:** `ANTHROPIC_MODEL`, `GROQ_API_KEY` (classifier; else keyword fallback), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` (prompts + observability).
 
 **Tests:** `uv run pytest tests/ -v` (optional live-LLM chat cases in `tests/test_api_e2e.py` skip without `ANTHROPIC_API_KEY`). **Functional E2E** (NPI + chat, completion vs escalation, mocked Claude): `tests/test_functional_e2e.py` — see [`docs/e2e-scenarios.md`](docs/e2e-scenarios.md). **Agent/dev guide:** [`AGENTS.md`](AGENTS.md).
 

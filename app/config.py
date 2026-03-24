@@ -3,7 +3,9 @@ import os
 
 class Settings:
     ANTHROPIC_API_KEY: str = os.environ.get("ANTHROPIC_API_KEY", "")
-    ANTHROPIC_MODEL: str = "claude-sonnet-4-20250514"
+    ANTHROPIC_MODEL: str = os.environ.get(
+        "ANTHROPIC_MODEL", "claude-sonnet-4-20250514"
+    )
     NPPES_BASE_URL: str = "https://npiregistry.cms.hhs.gov/api/"
     APP_TITLE: str = "PrescriberPoint AI Practice Onboarding"
 

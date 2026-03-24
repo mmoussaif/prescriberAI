@@ -28,7 +28,7 @@ Functional E2E tests use **HTTP** against the app (`TestClient`); they do not dr
 
 ## Environment
 
-Copy `.env.example` → `.env`. Minimum for real chat: `ANTHROPIC_API_KEY`. Optional: `GROQ_API_KEY` (phase classifier), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST` (US: `https://us.cloud.langfuse.com`).
+Copy `.env.example` → `.env`. Minimum for real chat: `ANTHROPIC_API_KEY`. Optional: `ANTHROPIC_MODEL` (defaults to `claude-sonnet-4-20250514`), `GROQ_API_KEY` (phase classifier), `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST` (US: `https://us.cloud.langfuse.com`).
 
 ## Key files
 

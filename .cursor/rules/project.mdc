@@ -30,7 +30,7 @@ cd frontend && npm run dev
 - API responses include `current_phase` and `needs_escalation` alongside `response`.
 - Escalation triggers when AI includes "connect you with a PrescriberPoint specialist" in its response.
 - Config areas are ordered: patient_demographics → prescribing_focus → prior_auth → sample_management → coverage_affordability → provider_roles.
-- Env vars: `ANTHROPIC_API_KEY` (required), `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST` (optional).
+- Env vars: `ANTHROPIC_API_KEY` (required), `ANTHROPIC_MODEL` (optional), `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST` (optional).
 - CORS origins default to `http://localhost:5173` for Vite dev server.
 
 ## Key files
