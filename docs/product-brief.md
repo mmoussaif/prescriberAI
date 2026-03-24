@@ -1,6 +1,6 @@
 # Product brief — PrescriberPoint AI practice onboarding (prototype)
 
-**Audience:** Product, CS leadership, engineering reviewers (e.g. Ryan).  
+**Audience:** Product, CS leadership, engineering reviewers.  
 **Companion:** This brief matches **current behavior in the repository** (`prescriberAI`). If Langfuse-hosted prompt text diverges from the code fallback, runtime behavior follows **Langfuse** when keys are set, else **`FALLBACK_PROMPT`** in `app/services/ai_service.py`.
 
 ---
@@ -17,13 +17,13 @@ Deliver a **credible end-to-end demo**: a practice admin enters an **NPI**, conf
 
 ## 3. Primary user flow (as implemented)
 
-| Step | UI state (`App.tsx`) | What happens |
-|------|----------------------|--------------|
-| 0 | **Dashboard** (`step === "home"`) | Lists **configured practices** for this browser (`localStorage`, `configuredAccountsStorage.ts`). User opens a card to re-read the summary or **Configure a practice** to start the wizard. **Dashboard** in the header is hidden here; shown on later steps to return home. |
-| 1 | NPI entry | User enters a **10-digit NPI**. Backend `GET /api/npi/{npi}` returns practice name, address, specialty, providers. **Live NPPES** is tried first; known **demo NPIs** use **mock data** if lookup fails or for offline demos (`app/services/npi_service.py`). |
-| 2 | Confirm | User verifies **Yes, that’s us** or goes back. |
-| 3 | Chat + sidebar | AI asks **one question per turn** (system rules). Each user reply is run through **validate** (Groq/Qwen JSON when `GROQ_API_KEY` is set, else heuristics): **`sidebar_caption`** for intelligent sidebar labels, **quality** `ok` / `weak` / `nonsense`. Nonsense triggers a stricter Claude instruction; two consecutive bad replies or LLM **`escalate_suggested`** returns a fixed **specialist** message. The sidebar lists six areas; **completed rows are clickable** to revise (`Chat.tsx`, `ConfigSidebar.tsx`). Composer: **Enter** sends, **Shift+Enter** inserts a newline. |
-| 4 | Summary | When the assistant’s reply contains the exact substring **`CONFIGURATION COMPLETE`** (case-insensitive), the client advances to the **summary** view with that text. Completing chat **persists** the practice + summary to `localStorage` (upsert by NPI). **Go to Dashboard** returns to step 0. |
+| Step | UI state (`App.tsx`)              | What happens                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0    | **Dashboard** (`step === "home"`) | Lists **configured practices** for this browser (`localStorage`, `configuredAccountsStorage.ts`). User opens a card to re-read the summary or **Configure a practice** to start the wizard. **Dashboard** in the header is hidden here; shown on later steps to return home.                                                                                                                                                                                                                                                                                                            |
+| 1    | NPI entry                         | User enters a **10-digit NPI**. Backend `GET /api/npi/{npi}` returns practice name, address, specialty, providers. **Live NPPES** is tried first; known **demo NPIs** use **mock data** if lookup fails or for offline demos (`app/services/npi_service.py`).                                                                                                                                                                                                                                                                                                                           |
+| 2    | Confirm                           | User verifies **Yes, that’s us** or goes back.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 3    | Chat + sidebar                    | AI asks **one question per turn** (system rules). Each user reply is run through **validate** (Groq/Qwen JSON when `GROQ_API_KEY` is set, else heuristics): **`sidebar_caption`** for intelligent sidebar labels, **quality** `ok` / `weak` / `nonsense`. Nonsense triggers a stricter Claude instruction; two consecutive bad replies or LLM **`escalate_suggested`** returns a fixed **specialist** message. The sidebar lists six areas; **completed rows are clickable** to revise (`Chat.tsx`, `ConfigSidebar.tsx`). Composer: **Enter** sends, **Shift+Enter** inserts a newline. |
+| 4    | Summary                           | When the assistant’s reply contains the exact substring **`CONFIGURATION COMPLETE`** (case-insensitive), the client advances to the **summary** view with that text. Completing chat **persists** the practice + summary to `localStorage` (upsert by NPI). **Go to Dashboard** returns to step 0.                                                                                                                                                                                                                                                                                      |
 
 **Progress bar:** Three segments; `WIZARD_PROGRESS` in `App.tsx` maps **NPI → confirm/chat → summary**. On **summary**, `current` is **`3`** so all segments render **complete** (green), not “active” (blue) on the last bar—see `ProgressBar` comment.
 
@@ -31,11 +31,11 @@ Deliver a **credible end-to-end demo**: a practice admin enters an **NPI**, conf
 
 Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_service.py`, labels in `frontend/src/types.ts`):
 
-1. **Patient demographics** — Age groups served (pediatric, adult, geriatric).  
-2. **Prescribing focus** — Drug categories, generics vs brand, therapeutic emphasis.  
-3. **Prior auth** — Payers, submission preferences, workflow priorities.  
-4. **Sample management** — Stocking samples, categories, dropship vs rep-delivered.  
-5. **Coverage & affordability** — Patient assistance, copay cards, what to surface.  
+1. **Patient demographics** — Age groups served (pediatric, adult, geriatric).
+2. **Prescribing focus** — Drug categories, generics vs brand, therapeutic emphasis.
+3. **Prior auth** — Payers, submission preferences, workflow priorities.
+4. **Sample management** — Stocking samples, categories, dropship vs rep-delivered.
+5. **Coverage & affordability** — Patient assistance, copay cards, what to surface.
 6. **Provider roles** — Who may submit PAs, request samples, administer the account.
 
 **Phase model:** Each chat turn runs a **classifier** (Groq **Qwen** when `GROQ_API_KEY` is set; otherwise **keyword fallback** on conversation text) to set `current_phase`, exposed in **`POST /api/chat`** as `current_phase`. The sidebar marks phases **complete** (green) when `current_phase` moves **forward** in order: if the API jumps several steps at once, **every skipped area** in between is marked (middle rows show "—" until replaced). When the assistant returns **`CONFIGURATION COMPLETE`**, any area still unchecked is backfilled so **all six** show complete before the summary step.
@@ -50,36 +50,36 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 
 ## 6. Technical summary (aligned with repo)
 
-| Layer | Implementation |
-|--------|------------------|
-| Frontend | React 19, TypeScript, Vite; dev server proxies `/api` to backend `:8080`. |
-| Backend | FastAPI, Python 3.12+, `uv`; CORS for Vite origin. |
-| Agent | **LangGraph:** `classify` → `validate` → `respond` → `check_complete` per user message (`app/services/ai_service.py`, `onboarding_validation.py`). |
-| Response model | **Anthropic** via LangChain `ChatAnthropic`; model id from **`ANTHROPIC_MODEL`** env (default `claude-sonnet-4-20250514` in `app/config.py`). |
-| Classifier + validation | **Groq** (same key as `GROQ_API_KEY`), default **`qwen/qwen3-32b`**; drives phase **classifier** and reply **validator**. Optional — without it, keyword classify + heuristic validation apply. |
-| Prompts | Langfuse prompt **`onboarding-system-prompt`**, label **`production`**, if `LANGFUSE_PUBLIC_KEY` / secret / host set; else in-repo fallback string. |
-| Observability | Langfuse **LangChain `CallbackHandler`** on graph runs when public key set; traces include session id from client (`session_id` on `ChatRequest`). |
-| APIs | `GET /api/npi/{npi}`, `POST /api/chat` (body: `messages`, `practice_context`, optional `session_id`). Response: `response`, `current_phase`, `needs_escalation`, optional `sidebar_caption`, `validation_quality`. |
+| Layer                   | Implementation                                                                                                                                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend                | React 19, TypeScript, Vite; dev server proxies `/api` to backend `:8080`.                                                                                                                                          |
+| Backend                 | FastAPI, Python 3.12+, `uv`; CORS for Vite origin.                                                                                                                                                                 |
+| Agent                   | **LangGraph:** `classify` → `validate` → `respond` → `check_complete` per user message (`app/services/ai_service.py`, `onboarding_validation.py`).                                                                 |
+| Response model          | **Anthropic** via LangChain `ChatAnthropic`; model id from **`ANTHROPIC_MODEL`** env (default `claude-sonnet-4-20250514` in `app/config.py`).                                                                      |
+| Classifier + validation | **Groq** (same key as `GROQ_API_KEY`), default **`qwen/qwen3-32b`**; drives phase **classifier** and reply **validator**. Optional — without it, keyword classify + heuristic validation apply.                    |
+| Prompts                 | Langfuse prompt **`onboarding-system-prompt`**, label **`production`**, if `LANGFUSE_PUBLIC_KEY` / secret / host set; else in-repo fallback string.                                                                |
+| Observability           | Langfuse **LangChain `CallbackHandler`** on graph runs when public key set; traces include session id from client (`session_id` on `ChatRequest`).                                                                 |
+| APIs                    | `GET /api/npi/{npi}`, `POST /api/chat` (body: `messages`, `practice_context`, optional `session_id`). Response: `response`, `current_phase`, `needs_escalation`, optional `sidebar_caption`, `validation_quality`. |
 
 ## 7. How we test (reviewer checklist)
 
-- **Automated:** `uv run pytest tests/` — full suite; per-file map in **`tests/README.md`**. Journeys: `tests/test_functional_e2e.py` (Scenario A completion, B escalation) over HTTP with **mocked Claude**; optional live LLM in `tests/test_api_e2e.py` when `ANTHROPIC_API_KEY` is set.  
-- **Manual chat scripts:** `docs/e2e-scenarios.md` (suggested user messages for A and B, including Dashboard entry).  
+- **Automated:** `uv run pytest tests/` — full suite; per-file map in **`tests/README.md`**. Journeys: `tests/test_functional_e2e.py` (Scenario A completion, B escalation) over HTTP with **mocked Claude**; optional live LLM in `tests/test_api_e2e.py` when `ANTHROPIC_API_KEY` is set.
+- **Manual chat scripts:** `docs/e2e-scenarios.md` (suggested user messages for A and B, including Dashboard entry).
 - **Diagrams:** `docs/architecture.mermaid`, `docs/user-flow.mermaid`.
 
 ## 8. Success criteria (observable)
 
-- **A — Complete:** After a coherent dialogue through the six areas, assistant ends with **`CONFIGURATION COMPLETE`**; app shows **summary**.  
-- **B — Escalate:** User describes e.g. **Epic / multi-site / EMR**; assistant uses specialist handoff language; **`needs_escalation`** true and **banner** visible.  
+- **A — Complete:** After a coherent dialogue through the six areas, assistant ends with **`CONFIGURATION COMPLETE`**; app shows **summary**.
+- **B — Escalate:** User describes e.g. **Epic / multi-site / EMR**; assistant uses specialist handoff language; **`needs_escalation`** true and **banner** visible.
 - **C — Identity:** NPI path returns consistent practice context for demo NPIs and live NPPES when available.
 
 ## 9. Document map
 
-| Doc | Purpose |
-|-----|---------|
-| `README.md` | One-page overview, run commands, env summary. |
-| `AGENTS.md` | Developer / agent orientation. |
-| `tests/README.md` | Pytest module map and commands. |
-| `docs/e2e-scenarios.md` | Manual + automated E2E detail. |
-| `docs/product-brief.md` | This brief — product alignment with code. |
+| Doc                                 | Purpose                                                                                              |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `README.md`                         | One-page overview, run commands, env summary.                                                        |
+| `AGENTS.md`                         | Developer / agent orientation.                                                                       |
+| `tests/README.md`                   | Pytest module map and commands.                                                                      |
+| `docs/e2e-scenarios.md`             | Manual + automated E2E detail.                                                                       |
+| `docs/product-brief.md`             | This brief — product alignment with code.                                                            |
 | `docs/stakeholder-product-brief.md` | Executive / assessment narrative (north star, phases, 2-week scope); not line-by-line code behavior. |
