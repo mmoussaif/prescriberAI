@@ -11,8 +11,8 @@ Stakeholder-facing product summary (kept in sync with the app): [`product-brief.
 **Setup**
 
 - Run backend + frontend (`AGENTS.md`).
-- Open `http://localhost:5173`.
-- Use demo NPI **`1234567890`** (mock practice) or any valid flow to **Confirm** and enter chat.
+- Open `http://localhost:5173`. The **Dashboard** lists practices saved in this browser (after a completed run). Click **Configure a practice** (or **Start onboarding** if the list is empty), then use demo NPI **`1234567890`** (mock practice) or any valid flow to **Confirm** and enter chat.
+- During the wizard, **Dashboard** in the header returns to the saved-practice grid without losing stored summaries.
 
 **How the assistant behaves**
 

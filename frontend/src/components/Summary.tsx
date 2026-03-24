@@ -4,6 +4,7 @@ import ScheduleCallLink from "./ScheduleCallLink";
 interface Props {
   practice: PracticeInfo;
   summaryText: string;
+  onGoDashboard: () => void;
 }
 
 function extractSummary(text: string) {
@@ -15,7 +16,11 @@ function stripBold(text: string) {
   return text.replace(/\*\*(.*?)\*\*/g, "$1");
 }
 
-export default function Summary({ practice, summaryText }: Props) {
+export default function Summary({
+  practice,
+  summaryText,
+  onGoDashboard,
+}: Props) {
   const config = stripBold(extractSummary(summaryText));
 
   return (
@@ -42,10 +47,9 @@ export default function Summary({ practice, summaryText }: Props) {
 
       <div className="actions">
         <button
+          type="button"
           className="btn btn-success"
-          onClick={() =>
-            alert("In production: launches the PrescriberPoint dashboard.")
-          }
+          onClick={onGoDashboard}
         >
           Go to Dashboard
         </button>

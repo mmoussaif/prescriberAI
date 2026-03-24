@@ -48,7 +48,7 @@ export default function Chat({ practice, onComplete }: Props) {
   const [completedPhases, setCompletedPhases] = useState<Map<string, string>>(new Map());
   const [escalation, setEscalation] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const initialized = useRef(false);
   const prevPhase = useRef("patient_demographics");
   const lastUserMsg = useRef("");
@@ -64,6 +64,13 @@ export default function Chat({ practice, onComplete }: Props) {
   useEffect(() => {
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
+
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 168)}px`;
+  }, [input]);
 
   async function callAI(userText: string, showUserBubble: boolean) {
     setLoading(true);
@@ -223,15 +230,22 @@ export default function Chat({ practice, onComplete }: Props) {
           </div>
         )}
 
-        <div className="input-row">
-          <input
+        <div className="input-row chat-input-row">
+          <textarea
             ref={inputRef}
-            type="text"
+            className="chat-input"
+            rows={1}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Type your response…"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Type your response… (Shift+Enter for a new line)"
             disabled={loading}
+            aria-label="Message"
           />
           <button
             className="btn btn-primary"

@@ -1,5 +1,6 @@
 const TOTAL_STEPS = 3;
 
+/** `current` is the count of completed segments (0–3). When current === TOTAL_STEPS, every bar is “done” (e.g. summary / setup complete). */
 export default function ProgressBar({ current }: { current: number }) {
   return (
     <div className="progress">

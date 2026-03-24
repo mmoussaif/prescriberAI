@@ -39,4 +39,11 @@ export const CONFIG_AREAS: { key: string; label: string }[] = [
   { key: "provider_roles", label: "Provider Roles" },
 ];
 
-export type Step = "npi" | "confirm" | "chat" | "summary";
+export interface ConfiguredAccount extends PracticeInfo {
+  /** ISO timestamp when onboarding was completed */
+  completedAt: string;
+  /** Full assistant summary text (CONFIGURATION COMPLETE block, etc.) */
+  summaryText: string;
+}
+
+export type Step = "home" | "npi" | "confirm" | "chat" | "summary";
