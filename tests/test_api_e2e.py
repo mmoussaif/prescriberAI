@@ -3,6 +3,9 @@
 These tests use FastAPI's TestClient and hit the real API routes.
 NPI tests use mock data (no network). Chat tests are skipped if
 ANTHROPIC_API_KEY is not set (to avoid CI failures without secrets).
+
+For full journey tests (configuration complete + escalation) with a mocked
+LLM, see tests/test_functional_e2e.py and docs/e2e-scenarios.md.
 """
 
 import os
