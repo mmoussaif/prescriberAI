@@ -82,3 +82,4 @@ Order and semantics are fixed in code (`CONFIG_AREAS` in `app/services/ai_servic
 | `tests/README.md` | Pytest module map and commands. |
 | `docs/e2e-scenarios.md` | Manual + automated E2E detail. |
 | `docs/product-brief.md` | This brief — product alignment with code. |
+| `docs/stakeholder-product-brief.md` | Executive / assessment narrative (north star, phases, 2-week scope); not line-by-line code behavior. |
