@@ -1,0 +1,16 @@
+---
+description: Backend conventions for FastAPI and LangGraph agent
+globs: app/**/*.py
+alwaysApply: false
+---
+
+# Backend Rules
+
+- Use Pydantic models from `app/models/schemas.py` for all request/response types.
+- The LangGraph `OnboardingState` TypedDict drives the agent; nodes must return the full state.
+- `_compile_system_prompt()` fetches from Langfuse first, falls back to `FALLBACK_PROMPT`. Never hardcode prompt changes without updating both.
+- Escalation is detected in `check_complete` via `ESCALATION_SIGNALS` phrase list. Add new signals there, always lowercase.
+- The `classify_phase` node uses Qwen 3 (via Groq) when `GROQ_API_KEY` is set, with keyword fallback. Qwen 3 returns `<think>` tags — strip them with `_THINK_RE` before parsing.
+- NPI service tries live NPPES first (`httpx`, 5s timeout), then mock fallback. Log failures, don't swallow silently.
+- `ChatResponse` includes `current_phase` and `needs_escalation` alongside `response`.
+- Langfuse v4 removed `langfuse.callback.CallbackHandler`. Use `langfuse.observe` decorator or direct client for tracing.

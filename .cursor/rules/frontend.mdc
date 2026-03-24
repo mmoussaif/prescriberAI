@@ -1,0 +1,15 @@
+---
+description: Frontend conventions for React components
+globs: frontend/src/**/*.tsx
+alwaysApply: false
+---
+
+# Frontend Rules
+
+- All API types live in `src/types.ts`. Keep in sync with backend Pydantic models.
+- API calls go through `src/api.ts` — components never call `fetch` directly.
+- Chat component manages conversation history locally; the full history is sent on each API call.
+- Config sidebar tracks phase transitions: when `current_phase` changes, mark the previous phase as done with the user's last message as the setting value.
+- Use `dangerouslySetInnerHTML` only for rendering markdown-like formatting (bold, line breaks) from AI responses.
+- CSS lives in `src/index.css` using CSS custom properties. No CSS modules or Tailwind.
+- The container widens to 960px during chat step via `.container-wide` class.

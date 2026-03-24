@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrescriberPoint — AI Practice Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --text: #111827;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --success: #059669;
+    --success-light: #ecfdf5;
+    --error-bg: #fef2f2;
+    --error: #dc2626;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; min-height: 100vh;
+    display: flex; justify-content: center;
+  }
+  .container { width: 100%; max-width: 680px; padding: 32px 16px; }
+
+  /* Header */
+  .header { margin-bottom: 28px; }
+  .header .brand {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; color: var(--primary); margin-bottom: 4px;
+  }
+  .header h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
+  .header p { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* Progress */
+  .progress { display: flex; gap: 6px; margin-bottom: 28px; }
+  .progress .step {
+    flex: 1; height: 3px; border-radius: 3px;
+    background: var(--border); transition: background 0.4s ease;
+  }
+  .progress .step.active { background: var(--primary); }
+  .progress .step.done { background: var(--success); }
+
+  /* Cards */
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    border: 1px solid var(--border); padding: 24px;
+    box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .card.hidden { display: none; }
+  .card h2 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .card .sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; }
+
+  /* Inputs & Buttons */
+  input[type="text"] {
+    padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; font-family: inherit; outline: none;
+    transition: border-color 0.2s; width: 100%;
+  }
+  input[type="text"]:focus { border-color: var(--primary); }
+  .input-row { display: flex; gap: 8px; }
+  .input-row input { flex: 1; }
+
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn-outline:hover { background: var(--primary-light); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #047857; }
+
+  /* Practice card */
+  .practice-card {
+    background: var(--primary-light); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px;
+  }
+  .practice-card h3 {
+    font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 8px;
+  }
+  .practice-card .row {
+    font-size: 13px; margin-bottom: 3px;
+  }
+  .practice-card .row span { color: var(--text-secondary); }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .chip {
+    display: inline-block; background: #fff; border: 1px solid var(--border);
+    border-radius: 16px; padding: 3px 10px; font-size: 12px;
+  }
+
+  /* Chat */
+  .chat-area {
+    min-height: 280px; max-height: 420px;
+    overflow-y: auto; margin-bottom: 14px; padding-right: 4px;
+  }
+  .chat-area::-webkit-scrollbar { width: 3px; }
+  .chat-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+  .msg { margin-bottom: 12px; display: flex; }
+  .msg.ai { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+  .bubble {
+    max-width: 82%; padding: 10px 14px; border-radius: 10px;
+    font-size: 13.5px; line-height: 1.55;
+  }
+  .msg.ai .bubble {
+    background: #f3f4f6; border-bottom-left-radius: 3px;
+  }
+  .msg.user .bubble {
+    background: var(--primary); color: #fff; border-bottom-right-radius: 3px;
+  }
+  .msg .label {
+    font-size: 10px; font-weight: 600; color: var(--text-secondary);
+    margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+
+  /* Typing */
+  .typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+  .typing span {
+    width: 6px; height: 6px; background: #9ca3af; border-radius: 50%;
+    animation: pulse 1.4s infinite ease-in-out;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.16s; }
+  .typing span:nth-child(3) { animation-delay: 0.32s; }
+  @keyframes pulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Summary */
+  .summary-box {
+    background: var(--success-light); border: 1px solid #a7f3d0;
+    border-radius: 8px; padding: 16px 18px; margin-top: 14px;
+  }
+  .summary-box h3 { font-size: 14px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
+  .summary-box pre {
+    font-size: 12.5px; white-space: pre-wrap; line-height: 1.6; font-family: inherit;
+  }
+
+  /* Error */
+  .error {
+    background: var(--error-bg); color: var(--error);
+    padding: 8px 12px; border-radius: 6px; font-size: 12.5px; margin-top: 8px;
+  }
+  .error.hidden { display: none; }
+
+  /* Hint */
+  .hint { font-size: 11.5px; color: var(--text-secondary); margin-top: 8px; }
+  .hint code {
+    background: #f3f4f6; padding: 1px 5px; border-radius: 3px;
+    font-size: 11.5px; cursor: pointer; font-family: 'DM Sans', monospace;
+  }
+  .hint code:hover { background: #e5e7eb; }
+
+  .actions { display: flex; gap: 8px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="brand">PrescriberPoint</div>
+    <h1>AI Practice Onboarding</h1>
+    <p>Get your practice configured and running in minutes, not days.</p>
+  </div>
+
+  <div class="progress">
+    <div class="step active" id="s1"></div>
+    <div class="step" id="s2"></div>
+    <div class="step" id="s3"></div>
+  </div>
+
+  <!-- PHASE 1: NPI Input -->
+  <div class="card" id="phase1">
+    <h2>Identify Your Practice</h2>
+    <p class="sub">Enter your NPI and we'll pull your details from the national registry.</p>
+    <div class="input-row">
+      <input type="text" id="npiInput" placeholder="10-digit NPI number" maxlength="10" autofocus>
+      <button class="btn btn-primary" id="npiBtn" onclick="lookupNPI()">Look Up</button>
+    </div>
+    <div class="hint">
+      Demo: <code onclick="fill('1234567890')">1234567890</code> Family Med
+      · <code onclick="fill('9876543210')">9876543210</code> Cardiology
+      · <code onclick="fill('5551234567')">5551234567</code> Pediatrics
+    </div>
+    <div class="error hidden" id="npiErr"></div>
+  </div>
+
+  <!-- PHASE 1b: Confirm -->
+  <div class="card hidden" id="phase1b">
+    <h2>Confirm Your Practice</h2>
+    <p class="sub">We found this in the NPI registry. Does it look right?</p>
+    <div class="practice-card" id="practiceCard"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="confirm()">Yes, that's us</button>
+      <button class="btn btn-outline" onclick="reset()">Try again</button>
+    </div>
+  </div>
+
+  <!-- PHASE 2: AI Chat -->
+  <div class="card hidden" id="phase2">
+    <h2>Configure Your Account</h2>
+    <p class="sub">Answer a few questions and I'll set everything up for your practice.</p>
+    <div class="chat-area" id="chatArea"></div>
+    <div class="input-row">
+      <input type="text" id="chatInput" placeholder="Type your response…" onkeydown="if(event.key==='Enter')send()">
+      <button class="btn btn-primary" id="chatBtn" onclick="send()">Send</button>
+    </div>
+  </div>
+
+  <!-- PHASE 3: Done -->
+  <div class="card hidden" id="phase3">
+    <h2>✓ Setup Complete</h2>
+    <p class="sub">Your PrescriberPoint account is configured and ready.</p>
+    <div id="summaryArea"></div>
+    <div class="actions">
+      <button class="btn btn-success" onclick="alert('In production: launches the PrescriberPoint dashboard.')">Go to Dashboard</button>
+      <button class="btn btn-outline" onclick="alert('In production: schedules a CS walkthrough call.')">Schedule Walkthrough</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let practice = null;
+let history = [];
+
+function fill(v) { document.getElementById('npiInput').value = v; }
+
+function showErr(id, msg) { const e = document.getElementById(id); e.textContent = msg; e.classList.remove('hidden'); }
+function hideErr(id) { document.getElementById(id).classList.add('hidden'); }
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+function progress(step) {
+  ['s1','s2','s3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.className = 'step' + (i < step ? ' done' : i === step ? ' active' : '');
+  });
+}
+
+// --- NPI ---
+async function lookupNPI() {
+  const npi = document.getElementById('npiInput').value.trim();
+  if (!/^\d{10}$/.test(npi)) { showErr('npiErr', 'Enter a valid 10-digit NPI.'); return; }
+  hideErr('npiErr');
+  const btn = document.getElementById('npiBtn');
+  btn.disabled = true; btn.textContent = 'Looking up…';
+  try {
+    const r = await fetch(`/api/npi/${npi}`);
+    if (!r.ok) { const e = await r.json(); showErr('npiErr', e.detail || 'NPI not found.'); return; }
+    practice = await r.json();
+    renderPractice();
+    hide('phase1'); show('phase1b'); progress(1);
+  } catch { showErr('npiErr', 'Connection error.'); }
+  finally { btn.disabled = false; btn.textContent = 'Look Up'; }
+}
+
+function renderPractice() {
+  const el = document.getElementById('practiceCard');
+  const chips = practice.providers.map(p => `<span class="chip">${p.name} · ${p.role}</span>`).join('');
+  el.innerHTML = `
+    <h3>${practice.practice_name}</h3>
+    <div class="row"><span>Address:</span> ${practice.address}</div>
+    <div class="row"><span>Specialty:</span> ${practice.specialty}</div>
+    <div class="row"><span>NPI:</span> ${practice.npi}</div>
+    <div class="chips">${chips}</div>`;
+}
+
+function confirm() { hide('phase1b'); show('phase2'); progress(2); startChat(); }
+function reset() { hide('phase1b'); show('phase1'); practice = null; progress(0); document.getElementById('npiInput').value = ''; }
+
+// --- Chat ---
+function addMsg(role, text) {
+  const area = document.getElementById('chatArea');
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  const parsed = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+  d.innerHTML = `<div><div class="label">${role === 'ai' ? 'AI Assistant' : 'You'}</div><div class="bubble">${parsed}</div></div>`;
+  area.appendChild(d);
+  area.scrollTop = area.scrollHeight;
+}
+
+function showTyping() {
+  const area = document.getElementById('chatArea');
+  const d = document.createElement('div'); d.className = 'msg ai'; d.id = 'typing';
+  d.innerHTML = `<div><div class="label">AI Assistant</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div></div>`;
+  area.appendChild(d); area.scrollTop = area.scrollHeight;
+}
+function hideTyping() { const t = document.getElementById('typing'); if (t) t.remove(); }
+
+async function startChat() {
+  history = [];
+  await callAI('The practice has confirmed their details. Begin the configuration conversation. Acknowledge their practice and ask the first configuration question.', false);
+}
+
+async function send() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim(); if (!text) return;
+  inp.value = '';
+  addMsg('user', text);
+  await callAI(text, true);
+}
+
+async function callAI(userText) {
+  const btn = document.getElementById('chatBtn');
+  const inp = document.getElementById('chatInput');
+  btn.disabled = true; inp.disabled = true;
+  showTyping();
+  history.push({ role: 'user', content: userText });
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history, practice_context: practice })
+    });
+    const data = await r.json();
+    hideTyping();
+    if (data.detail || data.error) { addMsg('ai', `⚠️ ${data.detail || data.error}`); return; }
+    history.push({ role: 'assistant', content: data.response });
+    addMsg('ai', data.response);
+    if (data.response.includes('CONFIGURATION COMPLETE') || data.response.includes('Configuration Complete'))
+      setTimeout(() => showSummary(data.response), 1200);
+  } catch { hideTyping(); addMsg('ai', '⚠️ Connection error. Try again.'); }
+  finally { btn.disabled = false; inp.disabled = false; inp.focus(); }
+}
+
+function showSummary(text) {
+  hide('phase2'); show('phase3'); progress(3);
+  const idx = text.toUpperCase().indexOf('CONFIGURATION COMPLETE');
+  const config = idx >= 0 ? text.substring(idx) : text;
+  document.getElementById('summaryArea').innerHTML = `
+    <div class="practice-card" style="margin-bottom:12px">
+      <h3>${practice.practice_name}</h3>
+      <div class="row"><span>Specialty:</span> ${practice.specialty}</div>
+      <div class="row"><span>Providers:</span> ${practice.providers.length}</div>
+    </div>
+    <div class="summary-box"><h3>Configuration Summary</h3><pre>${config.replace(/\*\*(.*?)\*\*/g,'$1')}</pre></div>`;
+}
+</script>
+</body>
+</html>

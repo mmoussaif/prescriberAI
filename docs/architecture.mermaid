@@ -1,0 +1,63 @@
+---
+title: AI Practice Onboarding — System Architecture
+---
+
+flowchart TB
+    subgraph USER["Practice Admin"]
+        Browser["Web Browser"]
+    end
+
+    subgraph FRONTEND["Frontend · React + TypeScript · Vite"]
+        NPI_Form["NPI Input"]
+        Confirm["Practice Confirmation"]
+        Chat_UI["Chat + Config Sidebar"]
+        Summary["Config Summary"]
+    end
+
+    subgraph BACKEND["FastAPI Backend · uv"]
+        NPI_Router["/api/npi/{npi}"]
+        Chat_Router["/api/chat"]
+        NPI_Svc["NPI Service"]
+    end
+
+    subgraph LANGGRAPH["LangGraph Agent"]
+        direction TB
+        Classify["classify<br/>Qwen 3 via Groq<br/>(free tier)"]
+        Respond["respond<br/>Claude Sonnet<br/>+ Langfuse prompt"]
+        Check["check_complete<br/>Done · Escalate"]
+        Classify --> Respond --> Check
+    end
+
+    subgraph PROMPTS["Prompt Management"]
+        Langfuse["Langfuse<br/>Versioned prompts<br/>editable from console"]
+    end
+
+    subgraph EXTERNAL["External Services"]
+        NPPES["NPPES Registry<br/>npiregistry.cms.hhs.gov"]
+        Groq["Groq API · Qwen 3"]
+        Claude["Anthropic · Claude Sonnet"]
+    end
+
+    Browser --> NPI_Form
+    NPI_Form -->|"NPI #"| NPI_Router
+    NPI_Router --> NPI_Svc
+    NPI_Svc -->|"Lookup"| NPPES
+    NPI_Svc --> NPI_Router
+    NPI_Router -->|"PracticeInfo JSON"| Confirm
+
+    Confirm -->|"Confirmed"| Chat_UI
+    Chat_UI -->|"Messages + context"| Chat_Router
+    Chat_Router --> Classify
+    Classify -->|"Classify call"| Groq
+    Respond -->|"Fetch prompt"| Langfuse
+    Respond -->|"Generate response"| Claude
+    Check --> Chat_Router
+    Chat_Router -->|"response + phase + escalation"| Chat_UI
+    Chat_UI -->|"CONFIGURATION COMPLETE"| Summary
+
+    style USER fill:#E3F2FD,stroke:#1565C0,color:#000
+    style FRONTEND fill:#F3E5F5,stroke:#7B1FA2,color:#000
+    style BACKEND fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style LANGGRAPH fill:#FFF8E1,stroke:#F57F17,color:#000
+    style PROMPTS fill:#FCE4EC,stroke:#C62828,color:#000
+    style EXTERNAL fill:#FFF3E0,stroke:#E65100,color:#000

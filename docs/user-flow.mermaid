@@ -1,0 +1,46 @@
+---
+title: Practice Onboarding — User Flow
+---
+
+flowchart TD
+    Start([Practice admin begins onboarding]) --> NPI[Enter NPI Number]
+    NPI --> Lookup{NPPES Lookup}
+    Lookup -->|Found| Show[Display practice name,<br/>address, specialty, providers]
+    Lookup -->|Not Found| Retry[Show error · retry]
+    Retry --> NPI
+
+    Show --> Confirm{Correct?}
+    Confirm -->|No| NPI
+    Confirm -->|Yes| Config_Start[AI begins configuration chat<br/>Sidebar shows 6 areas]
+
+    Config_Start --> Q1[Patient Demographics<br/>Age groups served]
+    Q1 --> Q2[Prescribing Focus<br/>Drug categories, generics vs brand]
+    Q2 --> Q3[Prior Auth Setup<br/>Payers, auto-submission prefs]
+    Q3 --> Q4[Sample Management<br/>Categories, delivery preference]
+    Q4 --> Q5[Coverage & Affordability<br/>Copay cards, PAP defaults]
+    Q5 --> Q6[Provider Roles<br/>Permissions for PA, samples]
+
+    Q1 -.->|Admin clicks sidebar| Revise[Revise previous area]
+    Q2 -.->|Admin clicks sidebar| Revise
+    Q3 -.->|Admin clicks sidebar| Revise
+    Q4 -.->|Admin clicks sidebar| Revise
+    Q5 -.->|Admin clicks sidebar| Revise
+    Revise -.-> Q1
+
+    Q3 -.->|Multi-location or EMR mentioned| Escalate
+    Q6 --> Check{Escalation<br/>needed?}
+    Check -->|No| Complete[CONFIGURATION COMPLETE<br/>Show summary + sidebar]
+    Check -->|Yes| Escalate[Escalation banner<br/>Schedule specialist call]
+
+    Escalate --> Continue[Continue configuring<br/>what AI can handle]
+    Continue --> Q1
+
+    Complete --> Dashboard[Go to Dashboard]
+    Complete --> Schedule[Schedule walkthrough call]
+
+    style Start fill:#E3F2FD,stroke:#1565C0,color:#000
+    style Complete fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style Escalate fill:#FFFBEB,stroke:#F59E0B,color:#000
+    style Dashboard fill:#E8F5E9,stroke:#2E7D32,color:#000
+    style Revise fill:#EFF6FF,stroke:#2563EB,color:#000
+    style Check fill:#FCE4EC,stroke:#C62828,color:#000
