@@ -23,6 +23,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[ChatMessage]
     practice_context: PracticeInfo
+    session_id: str | None = None
 
 
 class ChatResponse(BaseModel):

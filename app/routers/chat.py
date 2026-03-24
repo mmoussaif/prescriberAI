@@ -9,7 +9,11 @@ router = APIRouter(prefix="/api/chat", tags=["Chat"])
 async def chat(request: ChatRequest):
     """Send a conversation turn to the AI onboarding agent."""
     try:
-        result = await get_ai_response(request.messages, request.practice_context)
+        result = await get_ai_response(
+            request.messages,
+            request.practice_context,
+            session_id=request.session_id,
+        )
         return ChatResponse(**result)
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))

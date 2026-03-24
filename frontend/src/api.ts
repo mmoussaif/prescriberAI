@@ -12,11 +12,16 @@ export async function lookupNpi(npi: string): Promise<PracticeInfo> {
 export async function sendChat(
   messages: ChatMessage[],
   practiceContext: PracticeInfo,
+  sessionId?: string,
 ): Promise<ChatApiResponse> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, practice_context: practiceContext }),
+    body: JSON.stringify({
+      messages,
+      practice_context: practiceContext,
+      session_id: sessionId,
+    }),
   });
   const data = await res.json();
   if (data.detail || data.error) {

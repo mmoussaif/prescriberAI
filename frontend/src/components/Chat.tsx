@@ -51,6 +51,7 @@ export default function Chat({ practice, onComplete }: Props) {
   const initialized = useRef(false);
   const prevPhase = useRef("patient_demographics");
   const lastUserMsg = useRef("");
+  const sessionId = useRef(crypto.randomUUID());
 
   useEffect(() => {
     if (initialized.current) return;
@@ -78,7 +79,7 @@ export default function Chat({ practice, onComplete }: Props) {
     }
 
     try {
-      const data = await sendChat(newHistory, practice);
+      const data = await sendChat(newHistory, practice, sessionId.current);
       setHistory((prev) => [...prev, { role: "assistant", content: data.response }]);
       setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
 

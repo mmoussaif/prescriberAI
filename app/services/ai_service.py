@@ -6,13 +6,14 @@ Graph: START → classify → respond → check_complete → END
   - respond:         Generates the next AI response with phase-aware prompting
   - check_complete:  Detects if configuration is done or needs escalation
 
-Langfuse traces every invocation for observability.
+Langfuse traces every LangGraph invocation via the LangChain CallbackHandler.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+import uuid
 from typing import TypedDict
 
 from langchain_anthropic import ChatAnthropic
@@ -45,6 +46,22 @@ def _get_langfuse_client():
         )
     except Exception as e:
         logger.warning("Langfuse client not available: %s", e)
+        return None
+
+
+def _get_langfuse_handler():
+    """Return a LangChain CallbackHandler for Langfuse, or None.
+
+    Reads LANGFUSE_* env vars automatically (set via --env-file .env).
+    Session/user/tags are passed via LangChain RunnableConfig metadata.
+    """
+    if not settings.LANGFUSE_PUBLIC_KEY:
+        return None
+    try:
+        from langfuse.langchain import CallbackHandler
+        return CallbackHandler()
+    except Exception as e:
+        logger.warning("Langfuse CallbackHandler not available: %s", e)
         return None
 
 
@@ -306,11 +323,13 @@ onboarding_agent = build_onboarding_graph()
 # ---------------------------------------------------------------------------
 
 async def get_ai_response(
-    messages: list[ChatMessage], practice_context: PracticeInfo
+    messages: list[ChatMessage],
+    practice_context: PracticeInfo,
+    session_id: str | None = None,
 ) -> dict:
     """Run one turn of the onboarding agent and return response + metadata.
 
-    Traced by Langfuse when LANGFUSE_PUBLIC_KEY is set (via OpenTelemetry in v4).
+    Traced by Langfuse via the LangChain CallbackHandler when keys are set.
     """
 
     if not settings.ANTHROPIC_API_KEY:
@@ -325,7 +344,20 @@ async def get_ai_response(
         "response": "",
     }
 
-    result = onboarding_agent.invoke(state)
+    handler = _get_langfuse_handler()
+    config: dict = {}
+    if handler:
+        config["callbacks"] = [handler]
+        config["metadata"] = {
+            "langfuse_session_id": session_id or str(uuid.uuid4()),
+            "langfuse_tags": ["onboarding"],
+        }
+
+    result = onboarding_agent.invoke(state, config=config)
+
+    if handler and _langfuse:
+        _langfuse.flush()
+
     return {
         "response": result["response"],
         "current_phase": result["current_phase"],
